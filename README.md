@@ -1,0 +1,2 @@
+- Portal: organiza a experiência de quem usa — cliente, parceiro, executor ou funcionário.
+- Módulo: organiza uma funcionalidade — solicitações, financeiro, fornecedores ou usuários.
