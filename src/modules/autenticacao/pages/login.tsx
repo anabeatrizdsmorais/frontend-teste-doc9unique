@@ -1,190 +1,108 @@
-import { useEffect, useState } from 'react';
-import type { ChangeEvent, FormEvent, SyntheticEvent } from 'react';
+﻿import { useState } from "react"
+import { ArrowRight, Eye, EyeOff, Layers3, Workflow } from "lucide-react"
 
-// Define quais campos existem e quais valores eles aceitam.
-type LoginForm = {
-  email: string;
-
-  senha: string;
-};
-
-// O status só pode receber um destes valores.
-type LoginStatus = 'idle' | 'loading' | 'error' | 'success';
+import { Button } from "@/components/ui/button"
+import { Field, FieldLabel } from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
+import logo from "../../../assets/image/logo-astra.png"
+import "./login.css"
 
 export default function LoginPage() {
-  const [form, setForm] = useState<LoginForm>({
-    email: '',
-    senha: '',
-  });
+  const [recovering, setRecovering] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [notice, setNotice] = useState("")
 
-
-  useEffect(() => {
-
-  }, []);
-
-  const [status, setStatus] = useState<LoginStatus>('idle');
-  const [mensagem, setMensagem] = useState<string>('');
-  const [mostrarSenha, setMostrarSenha] = useState<boolean>(false);
-
-  function atualizarCampo(event: ChangeEvent<HTMLInputElement>) {
-    const { name, value } = event.currentTarget;
-
-    if (name !== 'email' && name !== 'senha') return;
-
-    setForm((atual) => ({
-      ...atual,
-      [name]: value,
-    }));
-
-    setStatus('idle');
-    setMensagem('');
+  function changeView(next: boolean) {
+    setRecovering(next)
+    setShowPassword(false)
+    setNotice("")
   }
-
-  async function entrar(event: SyntheticEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    if (!form.email.trim() || !form.senha) {
-      setStatus('error');
-      setMensagem('Preencha o e-mail e a senha.');
-      return;
-    }
-
-    setStatus('loading');
-    setMensagem('');
-
-    try {
-      // Demonstração: substitua pela chamada à sua API.
-      // Não registre a senha no console.
-      await new Promise<void>((resolve) => {
-        window.setTimeout(resolve, 800);
-      });
-
-      setStatus('success');
-      setMensagem(
-        'Formulário validado! Conecte sua API para realizar o login.',
-      );
-    } catch {
-      setStatus('error');
-      setMensagem('Não foi possível entrar. Tente novamente.');
-    }
-  }
-
-  const carregando = status === 'loading';
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-12">
-      <div className="w-full max-w-md">
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-40 items-center justify-center rounded-2xl bg-blue-600 text-xl font-bold text-white shadow-lg shadow-blue-600/20">
-            Doc9Unique
-          </div>
+    <main className="app-login">
+      <section className="app-login-access" aria-labelledby="login-title">
+        <div className="app-login-content">
+          <img className="mx-auto block" src={logo} alt="Astra Doc9" width={250} />
 
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-            Bem-vindo(a)
-          </h1>
+          <form
+            className="mt-7 grid gap-4"
+            onSubmit={(event) => {
+              event.preventDefault()
+              setNotice(recovering ? "O envio do link ainda não está disponível." : "O acesso por senha ainda não está disponível.")
+            }}
+          >
+            <Field>
+              <FieldLabel htmlFor="login-email">E-mail</FieldLabel>
+              <Input id="login-email" className="h-11" type="email" autoComplete="email" placeholder="nome@empresa.com" required />
+            </Field>
 
-          <p className="mt-2 text-sm text-slate-500">
-            Acesse sua conta no sistema unificado.
-          </p>
-        </div>
-
-        <section
-          aria-label="Acesso ao sistema"
-          className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
-        >
-          <form onSubmit={entrar} className="space-y-5">
-            <div>
-              <label
-                htmlFor="email"
-                className="mb-2 block text-sm font-medium text-slate-700"
-              >
-                E-mail
-              </label>
-
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="username"
-                placeholder="voce@empresa.com.br"
-                value={form.email}
-                onChange={atualizarCampo}
-                disabled={carregando}
-                required
-                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:opacity-60"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="senha"
-                className="mb-2 block text-sm font-medium text-slate-700"
-              >
-                Senha
-              </label>
-
-              <div className="relative">
-                <input
-                  id="senha"
-                  name="senha"
-                  type={mostrarSenha ? 'text' : 'password'}
-                  autoComplete="current-password"
-                  placeholder="Digite sua senha"
-                  value={form.senha}
-                  onChange={atualizarCampo}
-                  disabled={carregando}
-                  required
-                  className="w-full rounded-lg border border-slate-300 bg-white py-3 pl-4 pr-24 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:opacity-60"
-                />
-
-                <button
-                  type="button"
-                  onClick={() => setMostrarSenha((atual) => !atual)}
-                  aria-label={mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'}
-                  aria-controls="senha"
-                  disabled={carregando}
-                  className="absolute inset-y-0 right-0 rounded-r-lg px-4 text-sm font-medium text-blue-600 hover:text-blue-800 focus-visible:outline-2 focus-visible:outline-blue-600 disabled:opacity-60"
-                >
-                  {mostrarSenha ? 'Ocultar' : 'Mostrar'}
+            {!recovering && (
+              <Field>
+                <FieldLabel htmlFor="login-password">Senha</FieldLabel>
+                <div className="relative">
+                  <Input
+                    id="login-password"
+                    className="h-11 pr-12"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    placeholder="Digite sua senha"
+                    required
+                  />
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    type="button"
+                    className="absolute inset-y-0 right-2 my-auto text-muted-foreground"
+                    aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff aria-hidden="true" /> : <Eye aria-hidden="true" />}
+                  </Button>
+                </div>
+                <button type="button" className="app-login-recover" onClick={() => changeView(true)}>
+                  Esqueci minha senha
                 </button>
-              </div>
-            </div>
+              </Field>
+            )}
 
-            <div aria-live="polite" aria-atomic="true">
-              {mensagem && (
-                <p
-                  className={`rounded-lg px-4 py-3 text-sm ${
-                    status === 'error'
-                      ? 'bg-red-50 text-red-700'
-                      : 'bg-blue-50 text-blue-700'
-                  }`}
-                >
-                  {mensagem}
-                </p>
-              )}
-            </div>
-
-            <button
-              type="submit"
-              disabled={carregando}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white transition hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {carregando && (
-                <span
-                  aria-hidden="true"
-                  className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
-                />
-              )}
-
-              {carregando ? 'Entrando...' : 'Entrar'}
-            </button>
+            <Button type="submit" className="mt-1 h-11 w-full font-semibold">
+              {recovering ? "Enviar link de recuperação" : "Entrar"}
+              <ArrowRight aria-hidden="true" />
+            </Button>
           </form>
-        </section>
 
-        <p className="mt-6 text-center text-xs text-slate-500">
-          Precisa de acesso? Entre em contato com o administrador.
-        </p>
-      </div>
+          {!recovering && (
+            <>
+              <div className="app-login-divider">ou entre com</div>
+              <div className="grid grid-cols-2 gap-3">
+                <Button type="button" variant="outline" className="h-11">
+                  <span aria-hidden="true" className="app-login-google">G</span>
+                  Google
+                </Button>
+                <Button type="button" variant="outline" className="h-11">
+                  <span aria-hidden="true" className="app-login-microsoft"><i /><i /><i /><i /></span>
+                  Outlook
+                </Button>
+              </div>
+            </>
+          )}
+
+          <p role="status" className="mt-4 text-sm text-muted-foreground empty:mt-0">{notice}</p>
+        </div>
+      </section>
+
+      <aside className="app-login-astra" aria-labelledby="login-astra-title">
+        <div className="app-login-visual" aria-hidden="true">
+          <div className="app-login-orbit" />
+          <div className="app-login-core">A</div>
+          <span className="app-login-node app-login-node-finance"><Layers3 /></span>
+          <span className="app-login-node app-login-node-flow"><Workflow /></span>
+        </div>
+        <div className="app-login-intro">
+          <h2 id="login-astra-title">Seu trabalho, em um só lugar.</h2>
+          <p>O Astra é o portal da Doc9 para acessar os módulos internos, como o financeiro e as contas a pagar.</p>
+        </div>
+      </aside>
     </main>
-  );
+  )
 }
